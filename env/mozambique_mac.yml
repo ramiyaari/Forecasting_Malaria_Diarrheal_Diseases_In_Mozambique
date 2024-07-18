@@ -1,0 +1,17 @@
+name: mozambique1
+channels:
+  - nvidia
+  - pytorch
+  - conda-forge
+  - defaults  
+dependencies:  
+  - python~=3.12.3
+  - notebook~=7.2
+  - numpy~=1.26
+  - pandas~=2.2
+  - pip==24.0
+  - seaborn~=0.13
+  - pytorch~=2.3
+  - u8darts-all~=0.29
+  - pip:
+    - epiweeks==2.3.0
