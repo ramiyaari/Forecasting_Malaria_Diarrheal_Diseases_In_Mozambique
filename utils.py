@@ -206,10 +206,10 @@ def calculate_and_plot_pred_fit(pred, series, province, model, horizon, df_metri
         wis_vals = calculate_wis(truth, pred, alpha_vals)
         wis_val = np.mean(wis_vals)
     season = 'all'
-    df_metrics.loc[len(df_metrics.index)] = [province, model, horizon, season, 'rmse', rmse_val]
-    df_metrics.loc[len(df_metrics.index)] = [province, model, horizon, season, 'mape', mape_val]
-    df_metrics.loc[len(df_metrics.index)] = [province, model, horizon, season, 'smape', smape_val]
-    df_metrics.loc[len(df_metrics.index)] = [province, model, horizon, season, 'wis', wis_val]
+    df_metrics.loc[len(df_metrics.index)] = [province, model, horizon, season, 'RMSE', rmse_val]
+    df_metrics.loc[len(df_metrics.index)] = [province, model, horizon, season, 'MAPE', mape_val]
+    df_metrics.loc[len(df_metrics.index)] = [province, model, horizon, season, 'SMAPE', smape_val]
+    df_metrics.loc[len(df_metrics.index)] = [province, model, horizon, season, 'WIS', wis_val]
 
     for season in seasons:
         time = obs.time_index[(obs.time_index>=seasons[season][0]) & (obs.time_index<=seasons[season][1])]
