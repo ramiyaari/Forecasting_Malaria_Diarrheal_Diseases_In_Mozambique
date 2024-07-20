@@ -163,36 +163,7 @@ def run_backtests_global(df, provinces, model, model_desc, forecast_horizons,
     return pred_dict
 
 
-def plot_model_fit(province, series, pred, model, pred_date, weeks_to_predict, alpha_vals, output_dir):
-            
-    train, validation = series.split_before(pred_date)
-    validation = validation.slice_n_points_after(validation.time_index[0],weeks_to_predict)  
-
-    rmse_val = rmse(validation.slice_intersect(pred), pred)
-    mape_val = mape(validation.slice_intersect(pred), pred)
-    WIS = np.nan
-    if(pred.is_probabilistic):
-        truth = np.concatenate(validation.values())
-        WIS = np.mean(calculate_wis(truth, pred, alpha_vals))
-
-    plt.figure()
-    train.plot(label="Train", alpha=1)
-    validation.plot(label="Observed", alpha=1)
-    pred.plot(label="Predict 95%", low_quantile=0.025, high_quantile=0.975, alpha = 0.25)
-    pred.plot(label="Predict 50%", low_quantile=0.25, high_quantile=0.75, alpha = 0.5)
-    pred.plot(label="Predict", low_quantile=None, high_quantile=None, alpha = 0.5, linewidth=1)
-    plt.ylim(bottom=0)
-    plt.suptitle(province, size=20, horizontalalignment='center')
-    plt.title("Model: " + model + " | " +
-                    "rmse=" + np.round(rmse_val,2).astype(str) +" | " +
-                    "mape=" + np.round(mape_val,2).astype(str) + "% | " +
-                    "WIS=" + np.round(WIS,2).astype(str), 
-                    color="#404040", size=10,
-                    verticalalignment="bottom")
-    plt.savefig(output_dir +"/" + province + "_" + model + ".png", format="png", bbox_inches="tight", dpi=300)
-    plt.show()
-
-
+#calculate metrics for model forecasts and plot to given ax 
 def calculate_and_plot_pred_fit(pred, series, province, model, horizon, df_metrics, alpha_vals, seasons, ax, color):
     
     obs = series[pred.time_index]
@@ -229,9 +200,7 @@ def calculate_and_plot_pred_fit(pred, series, province, model, horizon, df_metri
         df_metrics.loc[len(df_metrics.index)] = [province, model, horizon, season, 'WIS', wis_val_year]
 
     if(ax is not None):
-        pred.plot(lw=2, label='{}, RMSE={:.2f}, MAPE={:.2f}%, SMAPE={:.2f}%, WIS={:.2f}'.format(
-            model, rmse_val, mape_val, smape_val, wis_val),
-                low_quantile=None, high_quantile=None,ax=ax,color=color,alpha=1)
+        pred.plot(lw=2, low_quantile=None, high_quantile=None,ax=ax,color=color,alpha=1,label='_nolegend_')
         pred_low = pred.quantile_df(0.25).iloc[:,0].values
         pred_high = pred.quantile_df(0.75).iloc[:,0].values
         ax.fill_between(pred.time_index, pred_low, pred_high, color=color, alpha=0.5)
@@ -239,11 +208,14 @@ def calculate_and_plot_pred_fit(pred, series, province, model, horizon, df_metri
         pred_high = pred.quantile_df(0.975).iloc[:,0].values
         ax.fill_between(pred.time_index, pred_low, pred_high, color=color, alpha=0.3)
         series.plot(label='_nolegend_',ax=ax, color='black')
-        ax.legend(loc='upper center', fontsize=16)
+        # ax.legend(loc='upper center', fontsize=16)
         ax.set_ylim(bottom=0)
         ax.tick_params(labelsize=16)
         ax.set_xlabel("")
         ax.set_ylabel('weekly incidence rate per 100,000', fontsize=12)
-        ax.set_title("")
+        model_title = model.replace("_Global", "")
+        title = '{}: RMSE={:.2f}, MAPE={:.2f}%, SMAPE={:.2f}%, WIS={:.2f}'.format(
+            model_title, rmse_val, mape_val, smape_val, wis_val)
+        ax.set_title(title, fontsize=14)
 
     return df_metrics, wis_vals
